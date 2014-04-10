@@ -114,6 +114,11 @@ type Attachment struct {
 	// to application/octet-stream if unknown.
 	ContentType string
 
+	// Optional.
+	// Used for embedding attachments inline in
+	// email messages (e.g. <img src="cid:<ContentID>"/>).
+	ContentID string
+
 	Data io.Reader
 }
 
@@ -266,6 +271,9 @@ func (m *Message) Bytes() ([]byte, error) {
 
 			header := textproto.MIMEHeader{}
 			header.Add("Content-Type", contentType)
+			if attachment.ContentID != "" {
+				header.Add("Content-ID", attachment.ContentID)
+			}
 			header.Add("Content-Disposition", fmt.Sprintf(`attachment;%s filename="%s"`, crlf, attachment.Name))
 			header.Add("Content-Transfer-Encoding", "base64")
 
